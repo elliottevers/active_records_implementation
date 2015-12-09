@@ -1,0 +1,8 @@
+This is a minimal implementation of ActiveRecords.  It interacts with the
+database a lot like the aforementioned ORM - read the specs to see the
+operations it supports.  It was rendered mostly trivial once I learned the sqlite3
+and active_support/inflector APIs, but it was still a great introduction to
+object-oriented design and metaprogramming.  To see it in action, you can try it
+yourself or check out my implementation of Rails where I make use of it.  The
+database schema used in this example is similar to the one I used in my app,
+Tenniscuous.
