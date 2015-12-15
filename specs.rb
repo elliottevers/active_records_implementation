@@ -1,27 +1,27 @@
 require 'rspec'
 require_relative 'lib/active_record_object'
-require_relative 'lib/db_connection'
+require_relative 'lib/database'
 
 describe ActiveRecordObject do
-  before(:each) { DBConnection.reset }
+  before(:each) { Database.reset }
   before(:each) do
     class User < ActiveRecordObject
       has_many :conversations, :foreign_key => :sender_id
-      self.finalize!
+      self.finalize
     end
     class Conversation < ActiveRecordObject
       belongs_to :sender, :foreign_key => :sender_id, class_name: 'User'
       belongs_to :recipient, :foreign_key => :recipient_id, class_name: 'User'
       has_many :messages
-      self.finalize!
+      self.finalize
     end
     class Message < ActiveRecordObject
       belongs_to :conversation
       belongs_to :user
-      self.finalize!
+      self.finalize
     end
   end
-  after(:each) { DBConnection.reset }
+  after(:each) { Database.reset }
 
   describe '::initialize' do
     it 'correctly sets attributes' do
@@ -30,7 +30,7 @@ describe ActiveRecordObject do
     end
   end
 
-  describe '::finalize!' do
+  describe '::finalize' do
       it "correctly implements getter" do
         @user = User.new
         @user.username = "Elliott"
@@ -77,6 +77,7 @@ describe ActiveRecordObject do
       user_4.save
       all_users = User.all
       expect(all_users.length).to eq 4
+      expect(user_4.id).to eq 4
     end
   end
 
@@ -99,7 +100,7 @@ describe ActiveRecordObject do
     end
   end
 
-  describe 'Associatable' do
+  describe 'Associations' do
     it 'returns the user for a given message' do
       nadal_message = Message.where(:body => "Rafa to Roger").first
       expect(nadal_message.user.username).to eq "Rafael"

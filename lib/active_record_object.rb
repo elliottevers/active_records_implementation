@@ -1,6 +1,6 @@
-require_relative 'db_connection.rb'
+require_relative 'database.rb'
 require 'active_support/inflector'
-require_relative 'associatable'
+require_relative 'associations'
 
 class ActiveRecordObject
 
@@ -13,7 +13,7 @@ class ActiveRecordObject
     end
   end
 
-  def self.finalize!
+  def self.finalize
     self.columns.each do |column|
       define_method("#{column}=") do |value|
         self.attributes[column] = value
@@ -25,7 +25,7 @@ class ActiveRecordObject
   end
 
   def self.all
-    results = DBConnection.execute(<<-SQL)
+    results = Database.execute(<<-SQL)
       SELECT
         #{table_name}.*
       FROM
@@ -36,7 +36,7 @@ class ActiveRecordObject
   end
 
   def self.find(id)
-    results = DBConnection.execute(<<-SQL, id)
+    results = Database.execute(<<-SQL, id)
       SELECT
         #{table_name}.*
       FROM
@@ -51,7 +51,7 @@ class ActiveRecordObject
   def self.where(attributes)
     where = attributes.keys.map { |key| "#{key} = ?" }.join(" AND ")
 
-    results = DBConnection.execute(<<-SQL, *attributes.values)
+    results = Database.execute(<<-SQL, *attributes.values)
       SELECT
         *
       FROM
@@ -68,20 +68,25 @@ class ActiveRecordObject
     column_names = columns.map(&:to_s).join(", ")
     query_params = columns.map{|param| "?"}.join(", ")
 
-    DBConnection.execute(<<-SQL, *attribute_values.drop(1))
+    Database.execute(<<-SQL, *attribute_values.drop(1))
       INSERT INTO
         #{self.class.table_name} (#{column_names})
       VALUES
         (#{query_params})
     SQL
 
-    self.id = DBConnection.last_insert_row_id
+    self.id = Database.execute(<<-SQL).first.values.first
+      SELECT
+        COUNT(*)
+      FROM
+        #{self.class.table_name}
+    SQL
   end
 
   def update
     set = self.class.columns.map{ |attr| "#{attr} = ?"}.join(", ")
 
-    DBConnection.execute(<<-SQL, *attribute_values, id)
+    Database.execute(<<-SQL, *attribute_values, id)
       UPDATE
         #{self.class.table_name}
       SET
@@ -98,16 +103,14 @@ class ActiveRecordObject
   def self.columns
     return @columns if @columns
 
-    cols = DBConnection.execute2(<<-SQL)
+    cols = Database.execute(<<-SQL)
       SELECT
         *
       FROM
         #{self.table_name}
-      LIMIT
-        0
     SQL
 
-    @columns = cols.first.map!(&:to_sym)
+    @columns = cols.first.keys.map!(&:to_sym)
   end
 
 
@@ -127,9 +130,9 @@ class ActiveRecordObject
     self.class.columns.map { |attribute| self.send(attribute) }
   end
 
-  def self.objectify(attributes)
-    attributes = attributes.map { |attribute| self.new(attribute) }
-    attributes
+  def self.objectify(array)
+    array = array.map { |attributes| self.new(attributes) }
+    array
   end
 
 end

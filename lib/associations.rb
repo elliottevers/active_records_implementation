@@ -1,6 +1,6 @@
 require 'active_support/inflector'
 
-module Associatable
+module Associations
   def belongs_to(model, options = {})
     self.assoc_options_store[model] = BelongsToOptions.new(model, options)
 
@@ -79,5 +79,5 @@ class HasManyOptions < AssocOptions
 end
 
 class ActiveRecordObject
-  extend Associatable
+  extend Associations
 end
