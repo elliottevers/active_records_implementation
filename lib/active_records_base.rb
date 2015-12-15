@@ -2,7 +2,7 @@ require_relative 'database.rb'
 require 'active_support/inflector'
 require_relative 'associations'
 
-class ActiveRecordObject
+class ActiveRecordsBase
 
   def initialize(params = {})
     params.each do |attr_name, value|

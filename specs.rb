@@ -1,21 +1,21 @@
 require 'rspec'
-require_relative 'lib/active_record_object'
+require_relative 'lib/active_records_base'
 require_relative 'lib/database'
 
-describe ActiveRecordObject do
+describe ActiveRecordsBase do
   before(:each) { Database.reset }
   before(:each) do
-    class User < ActiveRecordObject
+    class User < ActiveRecordsBase
       has_many :conversations, :foreign_key => :sender_id
       self.finalize
     end
-    class Conversation < ActiveRecordObject
+    class Conversation < ActiveRecordsBase
       belongs_to :sender, :foreign_key => :sender_id, class_name: 'User'
       belongs_to :recipient, :foreign_key => :recipient_id, class_name: 'User'
       has_many :messages
       self.finalize
     end
-    class Message < ActiveRecordObject
+    class Message < ActiveRecordsBase
       belongs_to :conversation
       belongs_to :user
       self.finalize

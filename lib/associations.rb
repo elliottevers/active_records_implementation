@@ -78,6 +78,6 @@ class HasManyOptions < AssocOptions
   end
 end
 
-class ActiveRecordObject
+class ActiveRecordsBase
   extend Associations
 end
