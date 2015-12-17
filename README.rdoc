@@ -5,4 +5,5 @@ and active_support/inflector APIs, but it was still a great introduction to
 object-oriented design and metaprogramming.  To see it in action, you can try it
 yourself or check out my implementation of Rails where I make use of it.  The
 database schema used in this example is similar to the one I used in my app,
-Tenniscuous.
+Tenniscuous. If you want to experiment with it, you'll have to install SQLite
+first.
